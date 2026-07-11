@@ -1,64 +1,100 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const natural = require('natural');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { ChromaClient } = require('chromadb');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. Đọc dữ liệu intents
+// ==========================================
+// 1. KHỞI TẠO BỘ NÃO SỐ 1: RULE-BASED (NLP)
+// ==========================================
 const intentsData = JSON.parse(fs.readFileSync('intents.json', 'utf8'));
-
-// 2. Khởi tạo bộ phân loại văn bản (Text Classifier)
 const classifier = new natural.BayesClassifier();
 
-// 3. Huấn luyện (Train) mô hình NLP với dữ liệu từ intents.json
-console.log("🌸 Đang huấn luyện bộ não cho SakuraBot...");
+console.log("🌸 Đang huấn luyện bộ não Rule-based...");
 intentsData.intents.forEach(intent => {
-    intent.patterns.forEach(pattern => {
-        // Đưa tất cả văn bản về chữ thường để đồng nhất dữ liệu
-        classifier.addDocument(pattern.toLowerCase(), intent.tag);
-    });
+    intent.patterns.forEach(pattern => classifier.addDocument(pattern.toLowerCase(), intent.tag));
 });
-
-// Chạy hàm huấn luyện
 classifier.train();
-console.log("✅ Huấn luyện hoàn tất!");
+console.log("✅ Huấn luyện NLP cơ bản hoàn tất!");
 
-// 4. Khởi tạo API Endpoint để nhận tin nhắn
-app.post('/api/chat', (req, res) => {
+// ==========================================
+// 2. KHỞI TẠO BỘ NÃO SỐ 2: LLM & CHROMA (RAG)
+// ==========================================
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+const chroma = new ChromaClient({ path: "http://localhost:8000" });
+
+// ==========================================
+// 3. API ROUTER: ĐIỀU PHỐI (ORCHESTRATION)
+// ==========================================
+app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
     
-    // Validate dữ liệu đầu vào
     if (!userMessage || userMessage.trim() === "") {
-        return res.status(400).json({ 
-            response: "Bạn chưa nhập tin nhắn kìa! (・`ω´・)" 
-        });
+        return res.status(400).json({ response: "Bạn chưa nhập tin nhắn kìa! (・`ω´・)" });
     }
 
-    // Tiền xử lý tin nhắn người dùng và phân tích để tìm tag (intent) có xác suất cao nhất
+    // 3.1. Đi qua Cổng 1: Kiểm tra bằng NLP cơ bản
     const predictedTag = classifier.classify(userMessage.toLowerCase());
-    
-    // Truy xuất câu trả lời dựa trên tag vừa tìm được
     const matchedIntent = intentsData.intents.find(i => i.tag === predictedTag);
     
-    // Xử lý Fallback (Khi bot không chắc chắn hoặc không có dữ liệu)
-    let botResponse = "Xin lỗi, SakuraBot chưa hiểu ý bạn lắm (´• ω •`). Bạn nói lại bằng cách khác được không?"; 
+    // BẢN VÁ LỖI: Kiểm tra xem câu của người dùng có thực sự chứa từ khóa trong pattern không
+    const isExactKeywordMatch = matchedIntent.patterns.some(pattern => 
+        userMessage.toLowerCase().includes(pattern.toLowerCase())
+    );
     
-    if (matchedIntent) {
-        // Random 1 câu trả lời trong mảng responses để tạo cảm giác tự nhiên, không bị rập khuôn
+    const basicTags = ["greeting", "goodbye", "thanks", "identity"];
+    
+    // ĐIỀU KIỆN MỚI: Tag phải thuộc nhóm cơ bản VÀ thực sự chứa từ khóa khớp
+    if (basicTags.includes(predictedTag) && isExactKeywordMatch) {
+        console.log("🎯 Xử lý bằng Rule-based NLP");
         const responses = matchedIntent.responses;
-        botResponse = responses[Math.floor(Math.random() * responses.length)];
+        const botResponse = responses[Math.floor(Math.random() * responses.length)];
+        return res.json({ response: botResponse });
     }
 
-    // Trả kết quả về cho Client
-    res.json({ response: botResponse });
+    // 3.2. Đi qua Cổng 2: Xử lý bằng LLM + Chroma (RAG)
+    try {
+        console.log("🧠 Đang gọi AI LLM (Gemini) xử lý câu hỏi...");
+        
+        // 1. Chui vào ChromaDB lấy tài liệu liên quan nhất
+        const collection = await chroma.getOrCreateCollection({ name: "sakura_knowledge" });
+        const results = await collection.query({ 
+            queryTexts: [userMessage], 
+            nResults: 2 // Lấy 2 đoạn tài liệu khớp nhất
+        });
+        
+        // 2. Gộp các tài liệu tìm được lại làm ngữ cảnh
+        const context = results.documents[0].join(" | ");
+
+        // 3. Gửi cho Gemini đọc tài liệu và trả lời
+        const prompt = `
+            Ngữ cảnh nội bộ: ${context}
+            
+            Bạn là SakuraBot. Hãy dựa vào thông tin trong "Ngữ cảnh nội bộ" để trả lời câu hỏi của người dùng một cách thân thiện, ngắn gọn và dễ thương nhất (dùng nhiều emoji). Nếu ngữ cảnh không có thông tin, hãy nói khéo léo là bạn chưa biết.
+            
+            Câu hỏi: "${userMessage}"
+        `;
+
+        const result = await model.generateContent(prompt);
+        const aiResponse = result.response.text();
+        
+        return res.json({ response: aiResponse });
+
+    } catch (error) {
+        console.error("Lỗi AI API:", error);
+        return res.json({ response: "Hic, bộ não AI của mình đang bảo trì một xíu, bạn đợi lát nha (´• ω •`)" });
+    }
 });
 
-// 5. Khởi động Server
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 SakuraBot API Server đang chạy tại http://localhost:${PORT}`);
-    console.log(`Gửi POST request đến http://localhost:${PORT}/api/chat để test!`);
+    console.log(`🚀 SakuraBot Hybrid API đang chạy tại http://localhost:${PORT}`);
 });
