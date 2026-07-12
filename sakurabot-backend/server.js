@@ -158,7 +158,8 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-const PORT = 3000;
+// Cloud sẽ tự động cấp một Port ngẫu nhiên qua biến process.env.PORT
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
-  console.log(`🚀 API 3-in-1 đang chạy tại http://localhost:${PORT}`),
+  console.log(`🚀 API 3-in-1 đang chạy tại PORT: ${PORT}`),
 );

@@ -68,11 +68,15 @@
 .sakura-message-row.user {
   align-self: flex-end;
   justify-content: flex-end;
+  margin-left: auto;
+  /* Đẩy mạnh sang phải */
 }
 
 .sakura-message-row.bot {
   align-self: flex-start;
   justify-content: flex-start;
+  margin-right: auto;
+  /* Đẩy mạnh sang trái */
 }
 
 .sakura-bot-icon {
@@ -89,6 +93,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   word-break: break-word;
   color: #4A4A4A;
+  text-align: left;
 }
 
 .sakura-bubble.bot-bubble {
