@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./App.css";
 import ReactMarkdown from "react-markdown";
@@ -104,6 +104,9 @@ function App() {
         setIsTyping(false);
       }, 500);
     } catch (error) {
+      // In lỗi ra màn hình console để sau này dễ debug
+      console.error("Lỗi kết nối API:", error);
+
       setIsTyping(false);
       setChatHistories((prev) => ({
         ...prev,

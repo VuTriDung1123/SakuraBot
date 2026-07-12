@@ -2,35 +2,105 @@
   "intents": [
     {
       "tag": "greeting",
-      "patterns": ["chào", "xin chào", "hello", "hi", "chào buổi sáng", "ê", "chào bot"],
+      "patterns": [
+        "chào",
+        "xin chào",
+        "hello",
+        "hi",
+        "chào buổi sáng",
+        "ê",
+        "chào bot"
+      ],
       "responses": [
-        "Kon'nichiwa! SakuraBot sẵn sàng giúp đỡ bạn nè (✿◠‿◠)", 
+        "Kon'nichiwa! SakuraBot sẵn sàng giúp đỡ bạn nè (✿◠‿◠)",
         "Chào bạn nha! Hôm nay bạn muốn SakuraBot làm gì nào? 🌸",
         "Hello! Chúc bạn một ngày tràn ngập sắc hồng nhé! 🎀"
       ]
     },
     {
       "tag": "goodbye",
-      "patterns": ["tạm biệt", "bye", "hẹn gặp lại", "đi đây", "cút"],
+      "patterns": [
+        "tạm biệt",
+        "bye",
+        "hẹn gặp lại",
+        "đi đây",
+        "cút"
+      ],
       "responses": [
-        "Tạm biệt nha! Mong sớm gặp lại bạn (🌸 ＞◡＜)", 
+        "Tạm biệt nha! Mong sớm gặp lại bạn (🌸 ＞◡＜)",
         "Bye bye! Nhớ giữ gìn sức khỏe nha! 💖"
       ]
     },
     {
       "tag": "identity",
-      "patterns": ["bạn là ai", "tên bạn là gì", "mày là ai", "ai tạo ra bạn"],
+      "patterns": [
+        "bạn là ai",
+        "tên bạn là gì",
+        "mày là ai",
+        "ai tạo ra bạn"
+      ],
       "responses": [
-        "Mình là SakuraBot, trợ lý ảo dễ thương nhất hệ mặt trời! 🌸", 
+        "Mình là SakuraBot, trợ lý ảo dễ thương nhất hệ mặt trời! 🌸",
         "Mình là SakuraBot, sinh ra để trò chuyện và giúp đỡ bạn đó (◕‿◕)"
       ]
     },
     {
       "tag": "thanks",
-      "patterns": ["cảm ơn", "thank you", "thanks", "cảm ơn nha", "tuyệt vời"],
+      "patterns": [
+        "cảm ơn",
+        "thank you",
+        "thanks",
+        "cảm ơn nha",
+        "tuyệt vời"
+      ],
       "responses": [
         "Không có chi nè! Giúp được bạn là SakuraBot vui lắm rồi (≧◡≦)",
         "Hehe, chuyện nhỏ! Cần gì cứ gọi mình nha. 🌸"
+      ]
+    },
+    {
+      "tag": "stress_management",
+      "patterns": [
+        "One year during christmas_comma_ i did not get a single gift. It was a rough day for me.",
+        "I got recently got three rejection letters for 3 different jobs in a matter of a week and a half. That was a painful experience. ",
+        "I felt sad when my dog passed away. It was a pet that I had since I was 3 years old_comma_ and was one of the saddest days of my life.",
+        "I was in a situation where I missed out on making some money_comma_ that caused me not to be happy.",
+        "I was reversing the car in the roadside. I had bumped into the car which was parked behind. I had to wait for so long to speak to the car owner",
+        "When I realized all the chocolate was gone_comma_ after a long day. ",
+        "I heard a car outside that sounded like it wrecked yesterday. It sounded  awful.",
+        "Today is my birthday. I can't wait to see who calls me. Or my gifts.",
+        "I just found out they are not making a sequel to a movie I like.",
+        "A few years ago when my grandmother died unexpectedly.",
+        "I cant wait to relocate again. ",
+        "I shouldn't have to cook on my birthday. This is when I miss having a boyfriend.",
+        "My mom has arthritis in her neck_comma_ and the pain seems to be traveling down now.",
+        "in a hurry to go on vacation! ",
+        "My birthday was last weekend_comma_ and no one wished me a Happy Birthday.",
+        "I was told my cat only has a few weeks to live.",
+        "when my dog died ",
+        "I lost my cat to old age and cried all night about it.",
+        "I lost my wallet and had to get all new cards",
+        "I was sad when my grandma died.",
+        "I can't wait for HAlloween. It is my favorite holifay. I love dressing up with the kids.",
+        "I'm doing a drink a paint session this weekend. I can't wait. It's goin to be fun!"
+      ],
+      "responses": [
+        "Bạn nghỉ ngơi một chút nhé! Hay là mình bật đếm ngược Pomodoro 25 phút, vừa học vừa trồng cây ảo cho đỡ chán nha 🌸",
+        "Đừng ép bản thân quá sức kuro~ Hãy thử chia nhỏ công việc ra và hoàn thành từng chút một. Cây ảo của bạn đang chờ được tưới nước đó!",
+        "Mệt mỏi là chuyện bình thường mà. Bạn ra ngoài uống miếng nước, đi dạo một vòng rồi vào set Pomodoro chiến tiếp nhé! (✿◠‿◠)"
+      ]
+    },
+    {
+      "tag": "app_features",
+      "patterns": [
+        "app này có tính năng gì",
+        "giới thiệu ứng dụng",
+        "làm sao để tập trung",
+        "ứng dụng theo dõi thói quen"
+      ],
+      "responses": [
+        "Hệ thống của chúng mình là một ứng dụng quản lý thời gian cực kỳ thú vị! Nó kết hợp kỹ thuật Pomodoro và game hóa (trồng cây ảo) để giúp bạn duy trì thói quen học tập mà không bị nhàm chán đó nha 💖",
+        "Ứng dụng giúp bạn theo dõi thói quen mỗi ngày. Bật mí nhỏ là tụi mình ưu tiên tốc độ cực nhanh để bạn lưu trữ dữ liệu tạm thời mà không lo giật lag đâu! 🌸"
       ]
     }
   ]
