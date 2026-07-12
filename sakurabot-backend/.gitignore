@@ -1,2 +1,4 @@
 chroma_data/
 .env
+my_local_datasets/
+node_modules/
